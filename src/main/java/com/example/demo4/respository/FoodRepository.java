@@ -1,12 +1,10 @@
 package com.example.demo4.respository;
 
+import com.example.demo4.model.Food;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo4.model.UserInfor;
-
 @Repository
-public interface UserInforRepository extends CrudRepository<UserInfor, Long> {
-
-	UserInfor findUserById(Long id);
+public interface FoodRepository extends CrudRepository<Food,Integer> {
+	Food findFoodById(int id);
 }
