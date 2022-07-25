@@ -44,6 +44,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManager();
 
 	}
+	@Bean
+	public RestAuthenticationEntryPoint restServicesEntryPoint() {
+		return new RestAuthenticationEntryPoint();
+	}
+
+	@Bean
+	public CustomAccessDeniedHandler customAccessDeniedHandler() {
+		return new CustomAccessDeniedHandler();
+	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -77,8 +86,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.and().csrf().disable()
 
 				.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+		http.httpBasic().authenticationEntryPoint(restServicesEntryPoint());
 
-		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+				.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler());
 
 		http.sessionManagement()
 

@@ -28,8 +28,9 @@ public class FoodServiceImpl implements FoodService {
 	}
 
 	@Override
-	public void saveFood(Food food) {
-		foodRepository.save(food);
+	public Food saveFood(Food food) {
+		return foodRepository.save(food);
+
 	}
 
 	@Override

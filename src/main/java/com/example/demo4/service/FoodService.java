@@ -9,7 +9,7 @@ public interface FoodService {
 
 	void deleteFood(int id);
 
-	void saveFood(Food food);
+	Food saveFood(Food food);
 
 	Food findFoodById(int id);
 }

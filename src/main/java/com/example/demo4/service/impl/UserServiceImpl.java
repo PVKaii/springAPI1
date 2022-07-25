@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.demo4.model.User;
-import com.example.demo4.model.UserPrinciple;
+import com.example.demo4.model.pojo.UserPrinciple;
 import com.example.demo4.respository.UserRepository;
 import com.example.demo4.service.UserService;
 

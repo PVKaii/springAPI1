@@ -2,8 +2,13 @@ package com.example.demo4.controller;
 
 import java.util.List;
 
+import com.example.demo4.model.Category;
 import com.example.demo4.model.Food;
+import com.example.demo4.model.pojo.FoodPrinciple;
+import com.example.demo4.service.impl.CategoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,48 +28,80 @@ public class FoodController {
 	@Autowired
 	FoodServiceImpl foodService;
 
+	@Autowired
+	CategoryServiceImpl categoryService;
 
 	@GetMapping("")
-	public List<Food> getAllUser(){
-		return foodService.getAllFood();
+	public ResponseEntity<?> getAllFood(){
+		try{
+			return new ResponseEntity<List<Food>>(foodService.getAllFood(), HttpStatus.OK);
+		}catch (Exception e){
+			return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 
 	@DeleteMapping("delete/{id}")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public Food deleteUser(@PathVariable(name="id") int id) {
-		Food foodDelete= foodService.findFoodById(id);
-		foodService.deleteFood(id);
-		return foodDelete;
+	public ResponseEntity<?> deleteFood(@PathVariable(name="id") int id) {
+		try{
+			Food foodDelete= foodService.findFoodById(id);
+			if(foodDelete!=null){
+				foodService.deleteFood(id);
+				return new ResponseEntity<FoodPrinciple>(new FoodPrinciple(foodDelete), HttpStatus.OK);
+			}
+			throw new Exception();
+		}catch (Exception e){
+			return new ResponseEntity<String>("Food not found", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 
-	@PostMapping("add")
+	@PostMapping("/add")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public Food addUser(@RequestBody Food food) {
-		foodService.saveFood(food);
-		return food;
+	public ResponseEntity<?> addFood(@RequestBody FoodPrinciple foodPrinciple) {
+		try{
+			Category category=  categoryService.findCategoryById(foodPrinciple.getCategory());
+			Food food=new Food(foodPrinciple,category);
+			foodService.saveFood(food);
+			return new ResponseEntity<FoodPrinciple>(new FoodPrinciple(food), HttpStatus.OK);
+		}
+		catch (Exception e){
+			return new ResponseEntity<String>("Food existed", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 	}
 
 
 	@PutMapping("edit/{id}")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public Food editUser(@PathVariable(name="id") int id,@RequestBody Food food) {
-		Food editFood=foodService.findFoodById(id);
-		if(editFood==null) {
-			return null;
+	public ResponseEntity<?> editFood(@PathVariable(name="id") int id,@RequestBody FoodPrinciple foodPrinciple) {
+		try{
+			Food editFood=foodService.findFoodById(id);
+			if(editFood!=null){
+				editFood.setName(foodPrinciple.getName());
+				editFood.setQuantity(foodPrinciple.getQuantity());
+				editFood.setAvailable(foodPrinciple.isAvailable());
+				editFood.setCategory(categoryService.findCategoryById(foodPrinciple.getCategory()));
+				foodService.saveFood(editFood);
+				return new ResponseEntity<FoodPrinciple>(new FoodPrinciple(editFood), HttpStatus.OK);
+			}
+			throw new Exception();
+		}catch (Exception e){
+			return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		else {
-//			editUser.setEmail(user.getEmail());
-//			editUser.setName(user.getName());
-//			editUser.setPhone(user.getPhone());
-//			userService.saveUser(editUser);
-			return editFood;
-		}
+
 	}
 	@GetMapping("/{id}")
-
-	public Food findUserById(@PathVariable(name="id") int id) {
-		return foodService.findFoodById(id);
+	public ResponseEntity<?> findFoodById(@PathVariable(name="id") int id) {
+		try{
+			Food food= foodService.findFoodById(id);
+			if(food!=null){
+				return new ResponseEntity<FoodPrinciple>(new FoodPrinciple(food), HttpStatus.OK);
+			}
+			throw new Exception();
+		}catch (Exception e){
+			return new ResponseEntity<String>("Food not found", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }
